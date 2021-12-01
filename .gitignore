@@ -1,0 +1,19 @@
+# log
+log/
+
+#yaml
+/config/settings.yaml
+
+#test
+test/
+*_test.go
+
+#go.sum
+go.sum
+
+#idea
+.idea/
+
+Dockerfile
+
+
