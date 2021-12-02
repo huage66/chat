@@ -78,7 +78,9 @@ func read(conn net.Conn) {
 		if err != nil {
 			continue
 		}
-		sendTo = rec.SendTo
+		if len(rec.SendTo) > 0 {
+			sendTo = rec.SendTo
+		}
 		fmt.Println(rec.ReceiveMessage)
 	}
 }

@@ -15,5 +15,6 @@ go.sum
 .idea/
 
 Dockerfile
+chat
 
 

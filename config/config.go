@@ -18,10 +18,10 @@ type Application struct {
 
 type Redis struct {
 	Host     string `json:"host"`
-	Port     int `json:"port"`
+	Port     int    `json:"port"`
 	Username string `json:"username"`
 	Password string `json:"password"`
-	DB       int `json:"db"`
+	DB       int    `json:"db"`
 }
 
 var (
