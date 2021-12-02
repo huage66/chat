@@ -10,7 +10,7 @@ import (
 
 func NewRedis() {
 	client := redis.NewClient(&redis.Options{
-		Addr:     fmt.Sprintf("%s:%d", config.RedisConf, config.RedisConf.Port),
+		Addr:     fmt.Sprintf("%s:%d", config.RedisConf.Host, config.RedisConf.Port),
 		Username: config.RedisConf.Username,
 		Password: config.RedisConf.Password,
 		DB:       config.RedisConf.DB,
