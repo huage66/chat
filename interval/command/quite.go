@@ -23,6 +23,7 @@ func (q *Quite) Run() model.ReceiveMessage {
 		if ok {
 			if m, ok := maps.(map[string]bool); ok {
 				delete(m, q.Ip)
+				vars.ChatMap.Store(q.SentTo, maps)
 			}
 		}
 	}
