@@ -30,7 +30,7 @@ func GroupWork(conn net.Conn, chat model.ChatMessage) {
 	if ok {
 		userItem, ok := userInfo.(*model.UserInfo)
 		if ok && len(userItem.Name) > 0 {
-			rec.ReceiveMessage = fmt.Sprintf("%s\t%s", chat.Ip, chat.Message)
+			rec.ReceiveMessage = fmt.Sprintf("%s\t%s", userItem.Name, chat.Message)
 		}
 	}
 	load, ok := vars.ChatMap.Load(chat.SendTo)
@@ -98,9 +98,11 @@ func Handler(conn net.Conn) {
 	go read(conn, chatMessage)
 	for chat := range chatMessage {
 		// 判断登录处理
-		if !repo.Login(chat, conn) {
-			write(conn, "连接失败, 新用户,请注册之后在登录, 使用register命令来注册新用户")
-			return
+		if chat.ChatType != vars.Register && chat.ChatType != vars.Rename {
+			if !repo.Login(chat, conn) {
+				write(conn, "连接失败, 新用户,请注册之后在登录, 使用register命令来注册新用户")
+				continue
+			}
 		}
 
 		switch chat.CmdType {

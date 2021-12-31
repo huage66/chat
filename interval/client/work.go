@@ -9,21 +9,19 @@ import (
 	"io"
 	"net"
 	"os"
-	"os/signal"
 	"strings"
 )
 
 var sendTo string
 var status int
 
-func write(conn net.Conn, c chan os.Signal) {
+func write(conn net.Conn) {
 	var rec model.ChatMessage
 	rec.Ip = getLocalIp()
 	scanner := bufio.NewReader(os.Stdin)
 	for {
 		if conn == nil {
 			fmt.Println("连接关闭")
-			signal.Stop(c)
 			return
 		}
 		text, err := scanner.ReadString('\n')
@@ -97,7 +95,7 @@ func write(conn net.Conn, c chan os.Signal) {
 	}
 }
 
-func read(conn net.Conn, c chan os.Signal) {
+func read(conn net.Conn) {
 	var rec model.ReceiveMessage
 	for {
 		bArr := make([]byte, 1024)
@@ -109,7 +107,6 @@ func read(conn net.Conn, c chan os.Signal) {
 			bArr = bArr[:0]
 			fmt.Println("连接关闭")
 			conn.Close()
-			signal.Stop(c)
 			return
 		}
 		if err != nil {
