@@ -38,6 +38,12 @@ func GroupWork(conn net.Conn, chat model.ChatMessage) {
 			}
 			if userInterface, ok := vars.UserMap.Load(name); ok {
 				if info, ok := userInterface.(*model.UserInfo); ok {
+					if info.Conn == nil {
+						vars.UserMap.Delete(info.IP)
+						delete(m, info.IP)
+						vars.ChatMap.Store(chat.SendTo, m)
+						continue
+					}
 					go WriteReceive(info.Conn, rec)
 				}
 			}

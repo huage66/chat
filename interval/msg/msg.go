@@ -2,7 +2,6 @@ package msg
 
 const (
 	ConnSuccess = "连接成功, 开始聊天"
-	ConnFailS   = "连接失败, 用户不存在或已下线"
 	ConnFailG   = "连接失败, 群聊不存在"
 	QuitSuccess = "退出成功"
 
