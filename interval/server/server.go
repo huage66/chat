@@ -1,7 +1,6 @@
 package server
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/huage66/chat/interval/command"
@@ -10,8 +9,8 @@ import (
 	"github.com/huage66/chat/interval/utils"
 	"github.com/huage66/chat/interval/vars"
 	"github.com/huage66/chat/model"
+	"io"
 	"net"
-	"strings"
 )
 
 // 单聊广播
@@ -22,7 +21,6 @@ import (
 // 群聊广播
 func GroupWork(conn net.Conn, chat model.ChatMessage) {
 	rec := model.ReceiveMessage{
-		ReceiveType:    chat.ChatType,
 		SendTo:         chat.SendTo,
 		ReceiveMessage: fmt.Sprintf("%s\t%s", chat.Ip, chat.Message),
 		Success:        true,
@@ -35,8 +33,11 @@ func GroupWork(conn net.Conn, chat model.ChatMessage) {
 
 	if m, ok := load.(map[string]bool); ok {
 		for name, _ := range m {
+			if name == chat.Ip {
+				continue
+			}
 			if userInterface, ok := vars.UserMap.Load(name); ok {
-				if info, ok := userInterface.(model.UserInfo); ok {
+				if info, ok := userInterface.(*model.UserInfo); ok {
 					go WriteReceive(info.Conn, rec)
 				}
 			}
@@ -47,13 +48,12 @@ func GroupWork(conn net.Conn, chat model.ChatMessage) {
 
 // 命令管理, 命令解析,
 func CmdWork(conn net.Conn, chat model.ChatMessage) {
-	data := strings.Split(chat.Message, "|")
-	switch data[0] {
+	switch chat.ChatType {
 	case vars.Select:
 		c := command.Select{
 			Ip:  chat.Ip,
 			Msg: chat.Message,
-			Arg: data[1],
+			Arg: chat.Arg,
 		}
 		WriteReceive(conn, c.Run())
 	case vars.Quite:
@@ -64,7 +64,7 @@ func CmdWork(conn net.Conn, chat model.ChatMessage) {
 		}
 		WriteReceive(conn, c.Run())
 	case vars.MakeGroup:
-		c := command.Make{Ip: chat.Ip, Msg: data[1]}
+		c := command.Make{Ip: chat.Ip, Msg: chat.Message}
 		WriteReceive(conn, c.Run())
 	}
 }
@@ -75,12 +75,11 @@ func Handler(conn net.Conn) {
 	for chat := range chatMessage {
 		// 判断登录处理
 		if !repo.Login(chat, conn) {
-			write(conn, "连接失败, 请重新尝试")
-			conn.Close()
+			write(conn, "连接失败, 新用户,请注册之后在登录, 使用register命令来注册新用户")
 			return
 		}
 
-		switch chat.ChatType {
+		switch chat.CmdType {
 		case vars.CmdType:
 			CmdWork(conn, chat)
 		case vars.GroupType:
@@ -91,13 +90,24 @@ func Handler(conn net.Conn) {
 
 func read(conn net.Conn, c chan model.ChatMessage) {
 	var chat model.ChatMessage
-	scanner := bufio.NewScanner(conn)
-	for scanner.Scan() {
-		if scanner.Err() != nil {
-			conn.Close()
+	for {
+		bArr := make([]byte, 1024)
+		if conn == nil {
 			break
 		}
-		err := json.Unmarshal(scanner.Bytes(), &chat)
+		n, err := conn.Read(bArr)
+		if err != nil {
+			bArr = bArr[:0]
+			fmt.Println("enter err", err)
+			return
+		}
+		if err == io.EOF {
+			conn.Close()
+			return
+		}
+
+		err = json.Unmarshal(bArr[:n], &chat)
+		bArr = bArr[:0]
 		if err != nil {
 			write(conn, msg.SendMsgFail)
 			continue

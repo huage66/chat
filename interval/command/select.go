@@ -5,10 +5,11 @@ import (
 	"github.com/huage66/chat/interval/vars"
 	"github.com/huage66/chat/model"
 )
+
 type Select struct {
-	Ip string
-	Arg string
-	Msg string
+	Ip   string
+	Arg  string
+	Msg  string
 }
 
 func (s *Select) GetName() string {
@@ -36,17 +37,17 @@ func (s *Select) Run() model.ReceiveMessage {
 	//	}
 	case "-g":
 		load, ok := vars.ChatMap.Load(s.Msg)
-		rec.ReceiveType = vars.GroupType
 		if ok {
-			m, ok := load.(map[string]bool)
+			maps, ok := load.(map[string]bool)
 			if !ok {
 				rec.ReceiveMessage = msg.ConnFailG
 				break
 			}
-			m[s.Ip] = true
 			rec.SendTo = s.Msg
 			rec.ReceiveMessage = msg.ConnSuccess
 			rec.Success = true
+			maps[s.Ip] = true
+			vars.ChatMap.Store(s.Msg, maps)
 		} else {
 			rec.ReceiveMessage = msg.ConnFailG
 		}

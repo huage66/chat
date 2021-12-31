@@ -21,7 +21,6 @@ func (r *Make) GetName() string {
 
 func (r *Make) Run() model.ReceiveMessage {
 	var rec model.ReceiveMessage
-	rec.ReceiveType = vars.CmdType
 	ctx := context.Background()
 	groupKey := fmt.Sprintf("%s:%s", keys.GroupPrefix, r.Msg)
 	data := orm.RedisClient.Exists(ctx, groupKey)
@@ -29,8 +28,9 @@ func (r *Make) Run() model.ReceiveMessage {
 		rec.ReceiveMessage = msg.CreateGroupFail
 		return rec
 	}
-	if data.Val() == 0 {
+	if data.Val() == 1 {
 		rec.ReceiveMessage = msg.GroupExists
+		return rec
 	}
 
 	if err := orm.RedisClient.Set(ctx, groupKey, r.Msg, 0).Err(); err != nil {
@@ -42,7 +42,6 @@ func (r *Make) Run() model.ReceiveMessage {
 	maps := make(map[string]bool)
 	maps[r.Ip] = true
 	vars.ChatMap.Store(r.Msg, maps)
-	rec.ReceiveType = vars.GroupType
 	rec.ReceiveMessage = "群聊创建成功, 快邀请小伙伴加入群聊"
 	rec.Success = true
 	return rec

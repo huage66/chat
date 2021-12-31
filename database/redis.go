@@ -11,11 +11,11 @@ import (
 func NewRedis() {
 	client := redis.NewClient(&redis.Options{
 		Addr:     fmt.Sprintf("%s:%d", config.RedisConf.Host, config.RedisConf.Port),
-		Username: config.RedisConf.Username,
+		//Username: config.RedisConf.Username,
 		Password: config.RedisConf.Password,
 		DB:       config.RedisConf.DB,
 	})
-	if err := client.Ping(context.Background()); err != nil {
+	if err := client.Ping(context.Background()).Err(); err != nil {
 		fmt.Sprintf("NewRedis: ping redis fail, err = %v\n", err)
 		panic(err)
 	}

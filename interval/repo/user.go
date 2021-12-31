@@ -21,12 +21,6 @@ func Login(chat model.ChatMessage, conn net.Conn) bool {
 	if err := orm.RedisClient.Get(ctx, GetUserKey(chat.Ip)).Scan(&u); err != nil {
 		return false
 	}
-	if len(u.IP) < 1 {
-		u.IP = chat.Ip
-		if err := orm.RedisClient.Set(ctx, GetUserKey(u.IP), &u, 0).Err(); err != nil {
-			return false
-		}
-	}
 
 	info := model.UserInfo{
 		User:   u,

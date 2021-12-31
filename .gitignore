@@ -16,5 +16,4 @@ go.sum
 
 Dockerfile
 chat
-
-
+interval/client/client

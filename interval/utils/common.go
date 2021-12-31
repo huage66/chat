@@ -14,3 +14,11 @@ func AddError(top string, err error) {
 func NowStr() string {
 	return time.Now().Format(timeFormat)
 }
+
+func Map2Strings(retMap map[string]bool) []string {
+	retList := make([]string, len(retMap))
+	for k, _ := range retMap {
+		retList = append(retList, k)
+	}
+	return retList
+}

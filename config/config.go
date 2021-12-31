@@ -13,7 +13,7 @@ type Setting struct {
 type Application struct {
 	Module string `json:"module"` // 模块名称
 	Host   string `json:"host"`   // host
-	Port   string `json:"port"`   // port
+	Port   int `json:"port"`   // port
 }
 
 type Redis struct {
@@ -46,4 +46,6 @@ func Setup() {
 	RedisConf = Config.Redis
 
 	ApplicationConf = Config.Application
+
+	fmt.Println("settings = ", Config)
 }

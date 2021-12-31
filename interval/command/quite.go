@@ -27,7 +27,6 @@ func (q *Quite) Run() model.ReceiveMessage {
 		}
 	}
 	return model.ReceiveMessage{
-		ReceiveType:    vars.CmdType,
 		ReceiveMessage: msg.QuitSuccess,
 		Success:        true,
 	}
