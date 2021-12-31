@@ -11,6 +11,7 @@ import (
 	"github.com/huage66/chat/model"
 	"io"
 	"net"
+	"strings"
 )
 
 // 单聊广播
@@ -24,6 +25,13 @@ func GroupWork(conn net.Conn, chat model.ChatMessage) {
 		SendTo:         chat.SendTo,
 		ReceiveMessage: fmt.Sprintf("%s\t%s", chat.Ip, chat.Message),
 		Success:        true,
+	}
+	userInfo, ok := vars.UserMap.Load(rec.SendTo)
+	if ok {
+		userItem, ok := userInfo.(*model.UserInfo)
+		if ok && len(userItem.Name) > 0 {
+			rec.ReceiveMessage = fmt.Sprintf("%s\t%s", chat.Ip, chat.Message)
+		}
 	}
 	load, ok := vars.ChatMap.Load(chat.SendTo)
 	if !ok {
@@ -73,6 +81,10 @@ func CmdWork(conn net.Conn, chat model.ChatMessage) {
 		c := command.Make{Ip: chat.Ip, Msg: chat.Message}
 		WriteReceive(conn, c.Run())
 	case vars.Register:
+		if len(strings.TrimSpace(chat.Message)) < 1 {
+			write(conn, "名字不符合规范, 请重新命名")
+			return
+		}
 		c := command.Register{Ip: chat.Ip, Username: chat.Message}
 		WriteReceive(conn, c.Run())
 	case vars.Rename:
