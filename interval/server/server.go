@@ -66,6 +66,12 @@ func CmdWork(conn net.Conn, chat model.ChatMessage) {
 	case vars.MakeGroup:
 		c := command.Make{Ip: chat.Ip, Msg: chat.Message}
 		WriteReceive(conn, c.Run())
+	case vars.Register:
+		c := command.Register{Ip: chat.Ip, Username: chat.Message}
+		WriteReceive(conn, c.Run())
+	case vars.Rename:
+		c := command.Rename{Ip: chat.Ip, Username: chat.Message}
+		WriteReceive(conn, c.Run())
 	}
 }
 
